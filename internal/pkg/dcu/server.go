@@ -386,11 +386,12 @@ func (p *Plugin) createvdevFiles(current *corev1.Pod, ctr *corev1.Container, req
 	}
 	dirName := string(current.UID) + "_" + ctr.Name + "_" + fmt.Sprint(devidx) + "_" + fmt.Sprint(pipeid) + "_" + fmt.Sprint(vdevidx) + "_" + fmt.Sprint(coremsk1) + "_" + fmt.Sprint(coremsk2)
 	cacheFileHostDirectory := fmt.Sprintf("/usr/local/vgpu/dcu/%s", dirName)
-	err = createvdevFile(pcibusId, coremsk1, coremsk2, reqcores, mem, 0, vdevidx, pipeid, cacheFileHostDirectory, "vdev0.conf")
+	// 容器内的配置：文件名 vdev0.conf，vdev_id 也必须是 0（和文件名匹配）
+	err = createvdevFile(pcibusId, coremsk1, coremsk2, reqcores, mem, 0, 0, pipeid, cacheFileHostDirectory, "vdev0.conf")
 	if err != nil {
 		return "", err
 	}
-	// support dcu-exporter
+	// support dcu-exporter：主机上的配置，使用全局 vdevidx
 	err = createvdevFile(pcibusId, coremsk1, coremsk2, reqcores, mem, devidx, vdevidx, pipeid, "/etc/vdev/", fmt.Sprintf("vdev%d.conf", vdevidx))
 	if err != nil {
 		return "", err
